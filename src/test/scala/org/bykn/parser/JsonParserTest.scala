@@ -1,0 +1,29 @@
+package org.bykn.parser
+
+import org.scalacheck.{Arbitrary, Gen, Prop, Properties}
+
+object JsonParserTest extends Properties("JsonParserTest") {
+  val ascii: Gen[String] =
+    Gen.listOf(Gen.choose(32, 126).map(_.toChar)).map(_.mkString)
+
+  val jsonAtoms: Gen[Json] =
+    Gen.oneOf(
+      //Arbitrary.arbitrary[String].map(Json.JString(_)),
+      ascii.map(Json.JString(_)),
+      Arbitrary.arbitrary[BigInt].map(Json.Number(_)))
+
+  def jsonGen(depth: Int): Gen[Json] = {
+    if (depth < 1) jsonAtoms
+    else {
+      val recurse = Gen.lzy(jsonGen(depth - 1))
+      Gen.oneOf(jsonAtoms, Gen.listOf(recurse).map(Json.JList(_)))
+    }
+  }
+
+
+  val jsonP: Parser[Json] = Json.parser[Parser]
+
+  property("parse round trips") = Prop.forAll(jsonGen(2)) { j =>
+    jsonP.parse(j.repr) == Right(("", j))
+  }
+}
