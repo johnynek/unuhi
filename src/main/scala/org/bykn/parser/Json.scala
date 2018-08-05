@@ -24,7 +24,7 @@ object Json {
     }.mkString("\"", "", "\"")
   }
 
-  def parser[P[_]](implicit p: ParserT[P]): P[Json] = {
+  def parser[P[_]](implicit p: ParserA[P]): P[Json] = {
 
     val recurse: P[Json] = p.defer(parser)
 

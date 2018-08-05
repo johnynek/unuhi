@@ -3,7 +3,7 @@ package org.bykn.parser
 import cats.{Alternative, Defer, Monad}
 import cats.data.NonEmptyList
 
-trait ParserT[P[_]] extends Alternative[P] with Defer[P] with Monad[P] {
+trait ParserA[P[_]] extends Alternative[P] with Defer[P] {
   def string(str: String): P[Unit]
   def not[A](p: P[A]): P[Unit]
   def oneOfChar(chars: Set[Char]): P[Char]
@@ -28,20 +28,24 @@ trait ParserT[P[_]] extends Alternative[P] with Defer[P] with Monad[P] {
   def either[A, B](b: P[A], a: P[B]): P[Either[A, B]] =
     combineK(map(a)(Right(_): Either[A, B]), map(b)(Left(_): Either[A, B]))
 
-  def repeated[A](p: P[A]): P[List[A]] =
-    map(tailRecM(List.empty[A]) { as =>
-      // see if we can get one more:
-      map(either(pure(as), map(p)(_ :: as)))(_.swap)
-    })(_.reverse)
+  def repeated[A](p: P[A]): P[List[A]] = {
+    val recurse = defer(repeated(p))
+
+    val atLeastOne = map2(p, recurse) (_ :: _)
+    val empty = pure(List.empty[A])
+    combineK(atLeastOne, empty)
+  }
 
   def repeated1[A](p: P[A]): P[NonEmptyList[A]] =
     map2(p, repeated(p))(NonEmptyList(_, _))
 
-  def repeated_[A](p: P[A]): P[Unit] =
-    tailRecM(()) { _ =>
-      // see if we can get one more:
-      map(either(unit, void(p)))(_.swap)
-    }
+  def repeated_[A](p: P[A]): P[Unit] = {
+    val recurse = defer(repeated_(p))
+
+    val atLeastOne = void(product(p, recurse))
+    val empty = unit
+    combineK(atLeastOne, empty)
+  }
 
   def repeated1_[A](p: P[A]): P[Unit] =
     void(product(p, repeated_(p)))
@@ -67,7 +71,7 @@ trait ParserT[P[_]] extends Alternative[P] with Defer[P] with Monad[P] {
     oneOfChars("123456789")
 }
 
-object ParserT {
-  def apply[P[_]](implicit p: ParserT[P]): ParserT[P] = p
+object ParserA {
+  def apply[P[_]](implicit p: ParserA[P]): ParserA[P] = p
 
 }

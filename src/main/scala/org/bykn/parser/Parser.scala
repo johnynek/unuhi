@@ -26,8 +26,8 @@ sealed trait Parser[+A] {
 }
 
 object Parser {
-  implicit val parserT: ParserT[Parser] =
-    new ParserT[Parser] {
+  implicit val parserM: ParserM[Parser] =
+    new ParserM[Parser] {
       def anyChar = AnyChar
       def defer[A](p: => Parser[A]): Parser[A] = DeferP(p _)
       def pure[A](a: A) = Const(a)
