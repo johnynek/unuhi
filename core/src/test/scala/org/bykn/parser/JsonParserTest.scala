@@ -23,7 +23,18 @@ object JsonParserTest extends Properties("JsonParserTest") {
 
   val jsonP: Parser[Json] = Json.parser[Parser]
 
-  property("parse round trips") = Prop.forAll(jsonGen(2)) { j =>
+  property("immutable: parse round trips") = Prop.forAll(jsonGen(2)) { j =>
     jsonP.parse(j.repr) == Right(("", j))
+  }
+
+  val json2P: Parser2[Json] = Json.parser[Parser2]
+
+  property("mutable: parse round trips") = Prop.forAll(jsonGen(2)) { j =>
+    json2P.parse(j.repr) == Right(("", j))
+  }
+
+  val fpParser = Json.parser(FastparseParser.fastParseParserA)
+  property("fastparse: parse round trips") = Prop.forAll(jsonGen(2)) { j =>
+    FastparseParser.fastParseParserA.runOption(fpParser, j.repr) == Some(("", j))
   }
 }

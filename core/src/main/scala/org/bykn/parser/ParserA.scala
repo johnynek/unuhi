@@ -5,11 +5,16 @@ import cats.data.NonEmptyList
 
 trait ParserA[P[_]] extends Alternative[P] with Defer[P] {
   def string(str: String): P[Unit]
+  // Consumes 0 bytes on success, which happens only
+  // when the given parser would NOT succeed at the current
+  // location
   def not[A](p: P[A]): P[Unit]
   def oneOfChar(chars: Set[Char]): P[Char]
   def runOption[A](p: P[A], str: String): Option[(String, A)]
   def anyChar: P[Char]
 
+  // All the rest have default implementations, but for
+  // performance you will often want to override them
   def char(c: Char): P[Unit] = string(c.toString)
 
   def oneOf[A](ps: List[P[A]]): P[A] =
@@ -29,11 +34,11 @@ trait ParserA[P[_]] extends Alternative[P] with Defer[P] {
     combineK(map(a)(Right(_): Either[A, B]), map(b)(Left(_): Either[A, B]))
 
   def repeated[A](p: P[A]): P[List[A]] = {
-    val recurse = defer(repeated(p))
-
-    val atLeastOne = map2(p, recurse) (_ :: _)
     val empty = pure(List.empty[A])
-    combineK(atLeastOne, empty)
+    lazy val atLeastOne: P[List[A]] = map2(p, defer(result)) (_ :: _)
+    lazy val result: P[List[A]] = combineK(atLeastOne, empty)
+
+    result
   }
 
   def repeated1[A](p: P[A]): P[NonEmptyList[A]] =
