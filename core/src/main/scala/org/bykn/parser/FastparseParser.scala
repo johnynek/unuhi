@@ -1,5 +1,6 @@
 package org.bykn.parser
 
+import cats.data.NonEmptyList
 import fastparse.all._
 
 object FastparseParser {
@@ -35,5 +36,10 @@ object FastparseParser {
         map(product(p, pa)) { case (fn, a) => fn(a) }
 
       override def widen[A, B >: A](p: P[A]): P[B] = p
+
+      override def optional[A](p: P[A]): P[Option[A]] = p.?
+      override def repeated[A](p: P[A]): P[List[A]] = p.rep().map(_.toList)
+      override def repeated1[A](p: P[A]): P[NonEmptyList[A]] =
+        p.rep(1).map { as => NonEmptyList(as.head, as.tail.toList) }
     }
 }

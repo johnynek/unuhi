@@ -9,9 +9,9 @@ import java.util.Random
 
 @State(Scope.Benchmark)
 class JsonBenchmark {
-  @Param(Array("5", "25", "125"))
+  @Param(Array("5", "25"))
   var length: Int = 0
-  @Param(Array("0", "1"))
+  @Param(Array("1"))
   var depth: Int = 0
 
   var jsons: Array[String] = _
@@ -41,18 +41,18 @@ class JsonBenchmark {
     jsons = (0 until 100).iterator.map(_ => makeDepth(depth).repr).toArray
   }
 
-  @Benchmark
-  def timeParsing(bh: Blackhole): Unit = {
-    val parser = Json.parser[Parser]
-    var idx = 0
-    while(idx < jsons.length) {
-      val jsonStr = jsons(idx)
-      val res = parser.parse(jsonStr)
-      bh.consume(res)
-      require(res.isRight)
-      idx = idx + 1
-    }
-  }
+  // @Benchmark
+  // def timeParsing(bh: Blackhole): Unit = {
+  //   val parser = Json.parser[Parser]
+  //   var idx = 0
+  //   while(idx < jsons.length) {
+  //     val jsonStr = jsons(idx)
+  //     val res = parser.parse(jsonStr)
+  //     bh.consume(res)
+  //     require(res.isRight)
+  //     idx = idx + 1
+  //   }
+  // }
 
   @Benchmark
   def timeParsing2(bh: Blackhole): Unit = {

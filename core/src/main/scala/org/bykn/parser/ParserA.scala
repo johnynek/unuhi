@@ -35,7 +35,7 @@ trait ParserA[P[_]] extends Alternative[P] with Defer[P] {
 
   def repeated[A](p: P[A]): P[List[A]] = {
     val empty = pure(List.empty[A])
-    lazy val atLeastOne: P[List[A]] = map2(p, defer(result)) (_ :: _)
+    def atLeastOne: P[List[A]] = map2(p, defer(result)) (_ :: _)
     lazy val result: P[List[A]] = combineK(atLeastOne, empty)
 
     result
@@ -45,11 +45,10 @@ trait ParserA[P[_]] extends Alternative[P] with Defer[P] {
     map2(p, repeated(p))(NonEmptyList(_, _))
 
   def repeated_[A](p: P[A]): P[Unit] = {
-    val recurse = defer(repeated_(p))
+    def atLeastOne: P[Unit] = void(product(p, defer(result)))
+    lazy val result: P[Unit] = combineK(atLeastOne, unit)
 
-    val atLeastOne = void(product(p, recurse))
-    val empty = unit
-    combineK(atLeastOne, empty)
+    result
   }
 
   def repeated1_[A](p: P[A]): P[Unit] =
