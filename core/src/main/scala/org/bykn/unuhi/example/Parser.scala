@@ -17,13 +17,14 @@ object Parser {
       override def product[A, B](a: Parser[A], b: Parser[B]) = Zip(a, b)
       override def oneOf[A](ps: List[Parser[A]]) = OneOf(ps)
       def combineK[A](p1: Parser[A], p2: Parser[A]) = OneOf(p1 :: p2 :: Nil)
-      def string(str: String) = StringP(str)
+      override def string(str: String) = StringP(str)
+      override def char(c: Char) = StringP(c.toString)
       def runOption[A](p: Parser[A], str: String) =
         p.parse(str).right.toOption
       def empty[A] = Parser.failed
 
       def not[A](p: Parser[A]) = NotP(p)
-      def oneOfChar(cs: Set[Char]) = Chars(cs)
+      override def oneOfChar(cs: Set[Char]) = Chars(cs)
 
       def tailRecM[A, B](a: A)(fn: A => Parser[Either[A, B]]) =
         TailRecM(a, fn)
@@ -134,7 +135,14 @@ object Parser {
   }
 
   private case class MapP[A, B](p: Parser[A], fn: A => B) extends Parser[B] {
-    def parse(str: String) = p.parse(str).right.map { case (s, a) => (s, fn(a)) }
+    require(p != null)
+    def parse(str: String) =
+      p.parse(str)
+        .right
+        .map {
+          case (s, a) =>
+            (s, fn(a))
+        }
   }
 
   private case class TailRecM[A, B](a: A, fn: A => Parser[Either[A, B]]) extends Parser[B] {

@@ -43,19 +43,20 @@ object Parser {
       def anyChar = AnyChar
       def defer[A](p: => Parser[A]): Parser[A] = DeferP(p _)
       def pure[A](a: A) = Const(a)
+      override lazy val unit = Const(())
       override def product[A, B](a: Parser[A], b: Parser[B]) = Zip(a, b)
       override def productL[A, B](a: Parser[A])(b: Parser[B]) = ZipL(a, b)
       override def productR[A, B](a: Parser[A])(b: Parser[B]) = ZipR(a, b)
       override def oneOf[A](ps: List[Parser[A]]) = OneOf(ps.toArray)
       def combineK[A](p1: Parser[A], p2: Parser[A]) = CombineK(p1, p2)
-      def string(str: String) = StringP(str)
+      override def string(str: String) = StringP(str)
       override def char(c: Char) = CharP(c)
       def runOption[A](p: Parser[A], str: String) =
         p.parse(str).right.toOption
       def empty[A] = Parser.failed
 
       def not[A](p: Parser[A]) = NotP(p)
-      def oneOfChar(cs: Set[Char]) = Chars(cs.toArray)
+      override def oneOfChar(cs: Set[Char]) = Chars(cs.toArray)
 
       override def map[A, B](p: Parser[A])(fn: A => B): Parser[B] =
         MapP(p, fn)
@@ -75,6 +76,12 @@ object Parser {
 
       override def repeated1_[A](p: Parser[A]): Parser[Unit] =
         void(Repeated(1, p, false))
+
+      override def void[A](p: Parser[A]): Parser[Unit] =
+        p match {
+          case void@VoidP(_) => void
+          case notVoid => VoidP(notVoid)
+        }
 
     }
 
@@ -259,7 +266,15 @@ object Parser {
     }
   }
 
+  private case class VoidP[A](p: Parser[A]) extends Parser[Unit] {
+    def parseMutable(state: Parser.State) = {
+      p.parseMutable(state)
+      ()
+    }
+  }
+
   private case class Repeated[A](cnt: Int, p: Parser[A], keepRes: Boolean) extends Parser[List[A]] {
+    require(p != null)
     val msg = "failed to repeatedly parse at least $cnt items"
     def parseMutable(state: Parser.State) = {
       var remaining = cnt

@@ -16,7 +16,10 @@ object JsonParserTest extends Properties("JsonParserTest") {
     if (depth < 1) jsonAtoms
     else {
       val recurse = Gen.lzy(jsonGen(depth - 1))
-      Gen.oneOf(jsonAtoms, Gen.listOf(recurse).map(Json.JList(_)))
+      Gen.oneOf(jsonAtoms,
+        Gen.listOf(recurse).map(Json.JList(_)),
+        Gen.listOf(Gen.zip(ascii, recurse)).map { kvs => Json.JMap(kvs.toMap) }
+        )
     }
   }
 

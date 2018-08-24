@@ -19,7 +19,8 @@ object FastparseParser {
           case h :: tail => h | P(oneOf(tail))
         }
       def combineK[A](p1: P[A], p2: P[A]) = p1 | p2
-      def string(str: String) = P(str)
+      override def string(str: String) = P(str)
+      def char(c: Char) = string(c.toString)
       def runOption[A](p: P[A], str: String) =
         p.parse(str) match {
           case Parsed.Success(a, chars) => Some((str.substring(chars), a))
@@ -28,7 +29,7 @@ object FastparseParser {
       def empty[A] = Fail
 
       def not[A](p: P[A]) = !p
-      def oneOfChar(cs: Set[Char]) = CharIn(cs.toArray).!.map(_.charAt(0))
+      override def oneOfChar(cs: Set[Char]) = CharIn(cs.toArray).!.map(_.charAt(0))
 
       override def map[A, B](p: P[A])(fn: A => B): P[B] =
         p.map(fn)
