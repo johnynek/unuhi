@@ -1,8 +1,10 @@
-package org.bykn.unuhi
+package org.bykn.unuhi.fastparse
+
+import org.bykn.unuhi._
 
 import org.scalacheck.{Arbitrary, Gen, Prop, Properties}
 
-object JsonParserTest extends Properties("JsonParserTest") {
+object JsonFastParseTest extends Properties("JsonFastParseTest") {
   val ascii: Gen[String] =
     Gen.listOf(Gen.choose(32, 126).map(_.toChar)).map(_.mkString)
 
@@ -21,15 +23,8 @@ object JsonParserTest extends Properties("JsonParserTest") {
   }
 
 
-  val jsonP: example.Parser[Json] = Json.parser[example.Parser]
-
-  property("immutable: parse round trips") = Prop.forAll(jsonGen(2)) { j =>
-    jsonP.parse(j.repr) == Right(("", j))
-  }
-
-  val json2P: Parser[Json] = Json.parser[Parser]
-
-  property("mutable: parse round trips") = Prop.forAll(jsonGen(2)) { j =>
-    json2P.parse(j.repr) == Right(("", j))
+  val fpParser = Json.parser(FastparseParser.fastParseParserA)
+  property("fastparse: parse round trips") = Prop.forAll(jsonGen(2)) { j =>
+    FastparseParser.fastParseParserA.runOption(fpParser, j.repr) == Some(("", j))
   }
 }

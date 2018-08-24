@@ -43,7 +43,7 @@ class JsonBenchmark {
 
   // @Benchmark
   // def timeParsing(bh: Blackhole): Unit = {
-  //   val parser = Json.parser[Parser]
+  //   val parser = Json.parser[example.Parser]
   //   var idx = 0
   //   while(idx < jsons.length) {
   //     val jsonStr = jsons(idx)
@@ -56,7 +56,7 @@ class JsonBenchmark {
 
   @Benchmark
   def timeParsing2(bh: Blackhole): Unit = {
-    val parser = Json.parser[Parser2]
+    val parser = Json.parser[Parser]
     var idx = 0
     while(idx < jsons.length) {
       val jsonStr = jsons(idx)
@@ -69,7 +69,7 @@ class JsonBenchmark {
 
   @Benchmark
   def timeParsing3(bh: Blackhole): Unit = {
-    val parser = Json.parser(FastparseParser.fastParseParserA)
+    val parser = Json.parser(fastparse.FastparseParser.fastParseParserA)
     var idx = 0
     while(idx < jsons.length) {
       val jsonStr = jsons(idx)

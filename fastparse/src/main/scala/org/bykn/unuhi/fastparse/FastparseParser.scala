@@ -1,7 +1,8 @@
-package org.bykn.unuhi
+package org.bykn.unuhi.fastparse
 
+import org.bykn.unuhi._
 import cats.data.NonEmptyList
-import fastparse.all._
+import _root_.fastparse.all._
 
 object FastparseParser {
   implicit val fastParseParserA: ParserA[P] =
