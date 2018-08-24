@@ -255,7 +255,16 @@ object Parser {
   }
 
   private case class DeferP[A](makeP: () => Parser[A]) extends Parser[A] {
-    lazy val p = makeP()
+    lazy val p = {
+      @annotation.tailrec
+      def loop(fn: () => Parser[A]): Parser[A] =
+        fn() match {
+          case DeferP(fn) => loop(fn)
+          case notDefer => notDefer
+        }
+      loop(makeP)
+    }
+
     def parseMutable(state: Parser.State) = p.parseMutable(state)
   }
 

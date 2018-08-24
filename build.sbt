@@ -18,6 +18,20 @@ lazy val core = (project in file("core"))
   )
   .disablePlugins(JmhPlugin)
 
+lazy val laws = (project in file("laws"))
+  .settings(parserSettings: _*)
+  .settings(
+    name := "unuhi-laws",
+    libraryDependencies ++= Seq(
+      cats,
+      catsLaws,
+      catsTestKit,
+      scalaCheck % Test,
+      scalaTest % Test)
+  )
+  .dependsOn(core)
+  .disablePlugins(JmhPlugin)
+
 lazy val fastparse = (project in file("fastparse"))
   .settings(parserSettings: _*)
   .settings(

@@ -1,6 +1,6 @@
 package org.bykn.unuhi
 
-import cats.{Alternative, Defer, Eval, Monad}
+import cats.{Alternative, Defer, Eval, Eq, Monad}
 import cats.data.NonEmptyList
 
 trait ParserA[P[_]] extends Alternative[P] with Defer[P] {
@@ -102,4 +102,13 @@ trait ParserA[P[_]] extends Alternative[P] with Defer[P] {
 object ParserA {
   def apply[P[_]](implicit p: ParserA[P]): ParserA[P] = p
 
+  def runsSame[P[_]: ParserA, A](tests: List[String]): Eq[P[A]] =
+    new Eq[P[A]] {
+      def eqv(a: P[A], b: P[A]): Boolean = {
+        val pa = ParserA[P]
+        tests.forall { str =>
+          pa.runOption(a, str) == pa.runOption(b, str)
+        }
+      }
+    }
 }
