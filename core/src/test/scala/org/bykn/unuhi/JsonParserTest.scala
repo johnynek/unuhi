@@ -1,4 +1,4 @@
-package org.bykn.parser
+package org.bykn.unuhi
 
 import org.scalacheck.{Arbitrary, Gen, Prop, Properties}
 

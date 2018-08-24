@@ -1,4 +1,4 @@
-package org.bykn.parser
+package org.bykn.unuhi
 
 import cats.{Alternative, Defer, Monad}
 import cats.data.NonEmptyList

@@ -1,6 +1,6 @@
-package org.bykn.parser.benchmark
+package org.bykn.unuhi.benchmark
 
-import org.bykn.parser._
+import org.bykn.unuhi._
 
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole

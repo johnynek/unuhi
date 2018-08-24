@@ -1,4 +1,4 @@
-package org.bykn.parser
+package org.bykn.unuhi
 
 sealed trait Parser[+A] {
   import Parser._
