@@ -43,7 +43,8 @@ object Parser {
       def anyChar = AnyChar
       def defer[A](p: => Parser[A]): Parser[A] = DeferP(p _)
       def pure[A](a: A) = Const(a)
-      override lazy val unit = Const(())
+      override val unit = Const(())
+      override def as[A, B](pa: Parser[A], b: B): Parser[B] = ZipR(pa, Const(b))
       override def product[A, B](a: Parser[A], b: Parser[B]) = Zip(a, b)
       override def productL[A, B](a: Parser[A])(b: Parser[B]) = ZipL(a, b)
       override def productR[A, B](a: Parser[A])(b: Parser[B]) = ZipR(a, b)
@@ -274,7 +275,6 @@ object Parser {
   }
 
   private case class Repeated[A](cnt: Int, p: Parser[A], keepRes: Boolean) extends Parser[List[A]] {
-    require(p != null)
     val msg = "failed to repeatedly parse at least $cnt items"
     def parseMutable(state: Parser.State) = {
       var remaining = cnt

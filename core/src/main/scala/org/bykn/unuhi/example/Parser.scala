@@ -135,7 +135,6 @@ object Parser {
   }
 
   private case class MapP[A, B](p: Parser[A], fn: A => B) extends Parser[B] {
-    require(p != null)
     def parse(str: String) =
       p.parse(str)
         .right
