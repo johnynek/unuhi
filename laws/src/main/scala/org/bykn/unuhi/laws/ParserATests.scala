@@ -4,36 +4,46 @@ import org.bykn.unuhi._
 
 import cats.Eq
 import cats.laws.discipline.SemigroupalTests.Isomorphisms
-import cats.laws.discipline.{AlternativeTests, DeferTests}
-import org.scalacheck.{Arbitrary, Cogen, Prop}
+import cats.laws.discipline.{AlternativeTests, DeferTests, catsLawsIsEqToProp}
+import org.scalacheck.{Arbitrary, Cogen, Gen, Prop}
 
 import cats.implicits._
+import Prop.forAll
 
 trait ParserATests[F[_]] extends AlternativeTests[F] with DeferTests[F] {
   def laws: ParserALaws[F]
 
-  def parserA[A: Arbitrary: Cogen, B: Arbitrary: Cogen, C: Arbitrary: Cogen](
+  implicit def eqF[A](implicit eqA: Eq[A], strArb: Arbitrary[String]): Eq[F[A]] = {
+    implicit val parserAP: ParserA[F] = laws.F
+    Gen.listOfN(1000, strArb.arbitrary).map { inputs =>
+      ParserA.runsSame[F, A](inputs)
+    }.sample.get
+  }
+
+  def parserA[A: Arbitrary: Cogen: Eq, B: Arbitrary: Cogen: Eq, C: Arbitrary: Cogen: Eq](
     implicit fa: Arbitrary[F[A]],
     fb: Arbitrary[F[B]],
     fc: Arbitrary[F[C]],
+    funit: Arbitrary[F[Unit]],
     fab: Arbitrary[F[A => B]],
     fbc: Arbitrary[F[B => C]],
-    eqfa: Eq[F[A]],
-    eqfb: Eq[F[B]],
-    eqfc: Eq[F[C]],
-    eqfabc: Eq[F[(A, B, C)]],
-    eqfbool: Eq[F[Boolean]],
+    fchar: Arbitrary[F[Char]],
     isoF: Isomorphisms[F]
   ): RuleSet =
     new RuleSet {
       val name: String = "parserA"
       val bases: Seq[(String, RuleSet)] = Nil
       val parents: Seq[RuleSet] = Seq(alternative[A, B, C], defer[A])
-      val props: Seq[(String, Prop)] = Nil
-        // "left distributivity" -> forAll(laws.alternativeLeftDistributivity[A, B] _),
-        // "right distributivity" -> forAll(laws.alternativeRightDistributivity[A, B] _),
-        // "right absorption" -> forAll(laws.alternativeRightAbsorption[A, B] _)
-      // )
+      // to test most laws here, we need parsers that consume at least 1 character
+      val props: Seq[(String, Prop)] = List(
+        "repeatedChar repeated consistency" -> forAll(laws.repeatedCharConsistency _),
+        "a parser or not(parser) can run" -> forAll(laws.parserOrNot _),
+        "char parses first of string" -> forAll(laws.charOfHeadParses _),
+        "anyChar parses first of string" -> forAll(laws.anyCharParser _),
+        "oneOf matches oneOfChar" -> forAll(laws.oneOfMatchesOneOfChar _),
+        "string matches reference" -> forAll(laws.stringMatchesReference _),
+        "oneOfChar matches reference" -> forAll(laws.oneOfCharMatchesReference _)
+      )
     }
 }
 

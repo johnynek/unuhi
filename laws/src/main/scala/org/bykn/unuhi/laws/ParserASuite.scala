@@ -37,15 +37,18 @@ abstract class ParserASuite[P[_]] extends CatsSuite {
     val oneOfP = Gen.listOf(recurse).map(parserA.oneOf(_))
 
     Gen.frequency(
-      (2, const),
-      (2, lengthOfAny),
-      (1, Gen.lzy(Gen.zip(arbFnInt.arbitrary, recurse)).map { case (fn, p) => parserA.ap(fn)(p) }),
+      (4, const),
+      (3, lengthOfAny),
+      (1, consecutiveAscii),
       (1, Gen.const(parserA.empty)),
+      (1, Gen.lzy(Gen.zip(arbFnInt.arbitrary, recurse)).map { case (fn, p) => parserA.ap(fn)(p) }),
       (1, Gen.const(posInt)),
-      (1, oneOfP),
-      (1, consecutiveAscii)
+      (1, oneOfP)
       )
   }
+
+  implicit val arbCharP: Arbitrary[P[Char]] =
+    Arbitrary(arbPInt.arbitrary.map { pi => pi.map { i => (i & 0xfff).toChar } })
 
   implicit lazy val arbFnInt: Arbitrary[P[Int => Int]] = Arbitrary {
     val recurse = Gen.lzy(arbFnInt.arbitrary)
@@ -61,16 +64,15 @@ abstract class ParserASuite[P[_]] extends CatsSuite {
 
     Gen.frequency(
       (3, const),
+      (2, Gen.const(parserA.empty)),
       (1, sum),
-      (1, compose),
-      (1, Gen.const(parserA.empty))
+      (1, compose)
     )
   }
 
-  implicit def eqP[P[_]: ParserA, A](implicit eqA: Eq[A], strArb: Arbitrary[String]): Eq[P[A]] =
-    Gen.listOfN(1000, strArb.arbitrary).map { inputs =>
-      ParserA.runsSame[P, A](inputs)
-    }.sample.get
+  implicit val arbFUnit: Arbitrary[P[Unit]] =
+    Arbitrary(Gen.oneOf(arbCharP.arbitrary.map(_.void), arbFnInt.arbitrary.map(_.void)))
+
 
   checkAll(name, ParserATests[P].parserA[Int, Int, Int])
 }

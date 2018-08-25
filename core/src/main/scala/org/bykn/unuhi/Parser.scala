@@ -69,6 +69,9 @@ object Parser {
       override def repeated[A](p: Parser[A]): Parser[List[A]] =
         Repeated(0, p, true)
 
+      override def repeatedChar(p: Parser[Char]): Parser[String] =
+        RepeatedChar(0, p)
+
       override def repeated1[A](p: Parser[A]): Parser[NonEmptyList[A]] =
         MapP[List[A], NonEmptyList[A]](Repeated(1, p, true), NonEmptyList.fromListUnsafe(_))
 
@@ -307,6 +310,34 @@ object Parser {
         // we actually did fail
         state.fail(offset, msg)
         Nil
+      }
+    }
+  }
+
+  private case class RepeatedChar(cnt: Int, p: Parser[Char]) extends Parser[String] {
+    val msg = "failed to repeatedly parse at least $cnt items"
+    def parseMutable(state: Parser.State) = {
+      var remaining = cnt
+      val bldr = new java.lang.StringBuilder()
+      var offset: Int = 0
+      while (!state.failed) {
+        offset = state.offset
+        val res = p.parseMutable(state)
+        if (!state.failed) {
+          remaining -= 1
+          bldr.append(res)
+        }
+      }
+      // if we get here we must have finally failed
+      if (remaining <= 0) {
+        // don't need any more
+        state.resetTo(offset)
+        bldr.toString()
+      }
+      else {
+        // we actually did fail
+        state.fail(offset, msg)
+        ""
       }
     }
   }
