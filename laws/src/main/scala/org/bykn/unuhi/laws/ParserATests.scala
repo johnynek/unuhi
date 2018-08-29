@@ -13,7 +13,7 @@ import Prop.forAll
 trait ParserATests[F[_]] extends AlternativeTests[F] with DeferTests[F] {
   def laws: ParserALaws[F]
 
-  implicit def eqF[A](implicit eqA: Eq[A], strArb: Arbitrary[String]): Eq[F[A]] = {
+  implicit def eqF[A](implicit strArb: Arbitrary[String]): Eq[F[A]] = {
     implicit val parserAP: ParserA[F] = laws.F
     Gen.listOfN(1000, strArb.arbitrary).map { inputs =>
       ParserA.runsSame[F, A](inputs)

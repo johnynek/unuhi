@@ -1,7 +1,6 @@
 package org.bykn.unuhi
 
-import cats.{Alternative, Defer, Monad}
-import cats.data.NonEmptyList
+import cats.Monad
 
 trait ParserM[P[_]] extends ParserA[P] with Monad[P] {
 

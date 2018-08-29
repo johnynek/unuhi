@@ -3,9 +3,6 @@ package org.bykn.unuhi.laws
 import org.bykn.unuhi._
 import cats.tests.CatsSuite
 import org.scalacheck.{Arbitrary, Gen}
-import cats.Eq
-
-import cats.implicits._
 
 abstract class ParserASuite[P[_]] extends CatsSuite {
   def name: String
@@ -17,7 +14,6 @@ abstract class ParserASuite[P[_]] extends CatsSuite {
 
     // can we parse a simple int
     val posInt: P[Int] = {
-      val d = parserA.digit
       def digitCnt(n: Int): P[String] =
         if (n <= 0) parserA.empty
         else if (n == 1) parserA.digit.map(_.toString)
