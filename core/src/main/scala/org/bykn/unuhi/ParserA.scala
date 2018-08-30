@@ -1,6 +1,6 @@
 package org.bykn.unuhi
 
-import cats.{Alternative, Defer, Eval, Eq, Monad}
+import cats.{Alternative, Defer, Eval, Eq}
 import cats.data.NonEmptyList
 
 trait ParserA[P[_]] extends Alternative[P] with Defer[P] {

@@ -202,7 +202,7 @@ object Parser {
 
   private case class ZipR[A, B](a: Parser[A], b: Parser[B]) extends Parser[B] {
     def parseMutable(state: Parser.State) = {
-      val resa = a.parseMutable(state)
+      a.parseMutable(state)
       if (!state.failed) {
         b.parseMutable(state)
       }
@@ -287,7 +287,7 @@ object Parser {
   }
 
   private case class Repeated[A](cnt: Int, p: Parser[A], keepRes: Boolean) extends Parser[List[A]] {
-    val msg = "failed to repeatedly parse at least $cnt items"
+    val msg = s"failed to repeatedly parse at least $cnt items"
     def parseMutable(state: Parser.State) = {
       var remaining = cnt
       val listbldr = if (keepRes) List.newBuilder[A] else null
@@ -315,7 +315,7 @@ object Parser {
   }
 
   private case class RepeatedChar(cnt: Int, p: Parser[Char]) extends Parser[String] {
-    val msg = "failed to repeatedly parse at least $cnt items"
+    val msg = s"failed to repeatedly parse at least $cnt items"
     def parseMutable(state: Parser.State) = {
       var remaining = cnt
       val bldr = new java.lang.StringBuilder()

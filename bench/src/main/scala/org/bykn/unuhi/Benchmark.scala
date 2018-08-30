@@ -18,7 +18,7 @@ class JsonBenchmark {
 
   @Setup(Level.Trial)
   def setup(): Unit = {
-    val rng = new Random("parser".hashCode)
+    val rng = new Random("parser".hashCode.toLong)
 
     def randomAsciiChar(): Char =
       (rng.nextInt(126 - 32) + 32).toChar
