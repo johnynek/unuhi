@@ -1,7 +1,8 @@
-import Dependencies._
 import ReleaseTransformations._
 import sbtcrossproject.{crossProject, CrossType}
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
+
+lazy val catsVersion = "1.2.0"
 
 lazy val noPublish = Seq(
   publish := {},
@@ -149,9 +150,9 @@ lazy val core = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure)
   .jvmSettings(commonJvmSettings:_*)
   .platformsSettings(JVMPlatform, JSPlatform)(
     libraryDependencies ++= Seq(
-      cats,
-      scalaCheck % Test,
-      scalaTest % Test
+      "org.typelevel" %%% "cats-core" % catsVersion,
+      "org.scalacheck" %%% "scalacheck" % "1.13.4" % Test,
+      "org.scalatest" %%% "scalatest" % "3.0.5" % Test
     )
   )
 
@@ -170,11 +171,11 @@ lazy val laws = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure)
   .jvmSettings(commonJvmSettings:_*)
   .platformsSettings(JVMPlatform, JSPlatform)(
     libraryDependencies ++= Seq(
-      cats,
-      catsLaws,
-      catsTestKit,
-      scalaCheck % Test,
-      scalaTest % Test
+      "org.typelevel" %%% "cats-core" % catsVersion,
+      "org.typelevel" %%% "cats-laws" % catsVersion,
+      "org.typelevel" %%% "cats-testkit" % catsVersion,
+      "org.scalacheck" %%% "scalacheck" % "1.13.4" % Test,
+      "org.scalatest" %%% "scalatest" % "3.0.5" % Test
     )
   )
   .dependsOn(core)
@@ -194,10 +195,10 @@ lazy val fastparse = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.P
   .jvmSettings(commonJvmSettings:_*)
   .platformsSettings(JVMPlatform, JSPlatform)(
     libraryDependencies ++= Seq(
-      cats,
-      Dependencies.fastparse,
-      scalaCheck % Test,
-      scalaTest % Test
+      "org.typelevel" %%% "cats-core" % catsVersion,
+      "com.lihaoyi" %%% "fastparse" % "1.0.0",
+      "org.scalacheck" %%% "scalacheck" % "1.13.4" % Test,
+      "org.scalatest" %%% "scalatest" % "3.0.5" % Test
     )
   )
   .dependsOn(core)
