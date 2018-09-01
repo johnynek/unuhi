@@ -18,7 +18,8 @@ lazy val unuhiSettings = Seq(
     case Some((2, n)) =>
       val xs0 = if (n <= 12) List("-Xfatal-warnings", "-Yno-adapted-args") else Nil
       val xs1 = if (n >= 12) List("-Ypartial-unification") else Nil
-      xs0 ::: xs1
+      val xs2 = if (n >= 11) List("-Ywarn-numeric-widen") else Nil
+      xs0 ::: xs1 ::: xs2
     case _ =>
       Nil
   }),
@@ -33,7 +34,6 @@ lazy val unuhiSettings = Seq(
     "-unchecked",
     "-Xlint",
     "-Ywarn-dead-code",
-    "-Ywarn-numeric-widen",
     "-Ywarn-value-discard",
     "-Xfuture"),
   // HACK: without these lines, the console is basically unusable,

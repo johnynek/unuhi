@@ -36,17 +36,17 @@ matrix:
       env: PLATFORM="js"
       script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coreJS/test lawsJS/test fastparseJS/test
 
-    - scala: 2.13.0-M4
-      language: scala
-      jdk: oraclejdk8
-      env: PLATFORM="jvm"
-      script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coreJVM/test lawsJVM/test fastparseJVM/test
+    # - scala: 2.13.0-M4
+    #   language: scala
+    #   jdk: oraclejdk8
+    #   env: PLATFORM="jvm"
+    #   script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coreJVM/test lawsJVM/test fastparseJVM/test
 
-    - scala: 2.13.0-M4
-      language: scala
-      jdk: oraclejdk8
-      env: PLATFORM="js"
-      script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coreJS/test lawsJS/test fastparseJS/test
+    # - scala: 2.13.0-M4
+    #   language: scala
+    #   jdk: oraclejdk8
+    #   env: PLATFORM="js"
+    #   script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coreJS/test lawsJS/test fastparseJS/test
 
 install:
  - pip install --user codecov
