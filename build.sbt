@@ -1,7 +1,8 @@
-import Dependencies._
 import ReleaseTransformations._
 import sbtcrossproject.{crossProject, CrossType}
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
+
+lazy val catsVersion = "1.3.0"
 
 lazy val noPublish = Seq(
   publish := {},
@@ -11,13 +12,14 @@ lazy val noPublish = Seq(
 lazy val unuhiSettings = Seq(
   organization := "org.bykn",
   scalaVersion := "2.12.6",
-  crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.6", "2.13.0-M4"),
+  crossScalaVersions := Seq("2.11.12", "2.12.6", "2.13.0-M4"),
   version      := "0.1.0-SNAPSHOT",
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, n)) =>
       val xs0 = if (n <= 12) List("-Xfatal-warnings", "-Yno-adapted-args") else Nil
       val xs1 = if (n >= 12) List("-Ypartial-unification") else Nil
-      xs0 ::: xs1
+      val xs2 = if (n >= 11) List("-Ywarn-numeric-widen") else Nil
+      xs0 ::: xs1 ::: xs2
     case _ =>
       Nil
   }),
@@ -32,7 +34,6 @@ lazy val unuhiSettings = Seq(
     "-unchecked",
     "-Xlint",
     "-Ywarn-dead-code",
-    "-Ywarn-numeric-widen",
     "-Ywarn-value-discard",
     "-Xfuture"),
   // HACK: without these lines, the console is basically unusable,
@@ -149,9 +150,9 @@ lazy val core = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure)
   .jvmSettings(commonJvmSettings:_*)
   .platformsSettings(JVMPlatform, JSPlatform)(
     libraryDependencies ++= Seq(
-      cats,
-      scalaCheck % Test,
-      scalaTest % Test
+      "org.typelevel" %%% "cats-core" % catsVersion,
+      "org.scalacheck" %%% "scalacheck" % "1.13.4" % Test,
+      "org.scalatest" %%% "scalatest" % "3.0.5" % Test
     )
   )
 
@@ -170,11 +171,11 @@ lazy val laws = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure)
   .jvmSettings(commonJvmSettings:_*)
   .platformsSettings(JVMPlatform, JSPlatform)(
     libraryDependencies ++= Seq(
-      cats,
-      catsLaws,
-      catsTestKit,
-      scalaCheck % Test,
-      scalaTest % Test
+      "org.typelevel" %%% "cats-core" % catsVersion,
+      "org.typelevel" %%% "cats-laws" % catsVersion,
+      "org.typelevel" %%% "cats-testkit" % catsVersion,
+      "org.scalacheck" %%% "scalacheck" % "1.13.4" % Test,
+      "org.scalatest" %%% "scalatest" % "3.0.5" % Test
     )
   )
   .dependsOn(core)
@@ -194,10 +195,10 @@ lazy val fastparse = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.P
   .jvmSettings(commonJvmSettings:_*)
   .platformsSettings(JVMPlatform, JSPlatform)(
     libraryDependencies ++= Seq(
-      cats,
-      Dependencies.fastparse,
-      scalaCheck % Test,
-      scalaTest % Test
+      "org.typelevel" %%% "cats-core" % catsVersion,
+      "com.lihaoyi" %%% "fastparse" % "1.0.0",
+      "org.scalacheck" %%% "scalacheck" % "1.13.4" % Test,
+      "org.scalatest" %%% "scalatest" % "3.0.5" % Test
     )
   )
   .dependsOn(core)

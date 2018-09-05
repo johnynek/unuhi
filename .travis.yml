@@ -1,0 +1,53 @@
+matrix:
+  include:
+    - scala: 2.11.12
+      language: scala
+      jdk: oraclejdk8
+      env: PLATFORM="jvm"
+      script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coverage coreJVM/test lawsJVM/test fastparseJVM/test doc coverageReport && codecov
+
+    - scala: 2.11.12
+      language: scala
+      jdk: oraclejdk8
+      env: PLATFORM="js"
+      script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coreJS/test lawsJS/test fastparseJS/test
+
+    - scala: 2.12.6
+      language: scala
+      jdk: oraclejdk8
+      env: PLATFORM="jvm"
+      script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coverage coreJVM/test lawsJVM/test fastparseJVM/test doc coverageReport && codecov
+
+    - scala: 2.12.6
+      language: scala
+      jdk: oraclejdk8
+      env: PLATFORM="js"
+      script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coreJS/test lawsJS/test fastparseJS/test
+
+    # - scala: 2.13.0-M4
+    #   language: scala
+    #   jdk: oraclejdk8
+    #   env: PLATFORM="jvm"
+    #   script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coreJVM/test lawsJVM/test fastparseJVM/test
+
+    # - scala: 2.13.0-M4
+    #   language: scala
+    #   jdk: oraclejdk8
+    #   env: PLATFORM="js"
+    #   script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coreJS/test lawsJS/test fastparseJS/test
+
+install:
+ - pip install --user codecov
+
+cache:
+  directories:
+  - $HOME/.sbt/boot/scala*
+  - $HOME/.sbt/launchers
+  - $HOME/.ivy2/cache
+  - $HOME/.nvm
+
+before_cache:
+  - du -h -d 1 $HOME/.ivy2/cache
+  - du -h -d 2 $HOME/.sbt/
+  - find $HOME/.sbt -name "*.lock" -type f -delete
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete
