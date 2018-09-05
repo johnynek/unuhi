@@ -2,7 +2,7 @@ import ReleaseTransformations._
 import sbtcrossproject.{crossProject, CrossType}
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
 
-lazy val catsVersion = "1.2.0"
+lazy val catsVersion = "1.3.0"
 
 lazy val noPublish = Seq(
   publish := {},
@@ -12,7 +12,7 @@ lazy val noPublish = Seq(
 lazy val unuhiSettings = Seq(
   organization := "org.bykn",
   scalaVersion := "2.12.6",
-  crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.6", "2.13.0-M4"),
+  crossScalaVersions := Seq("2.11.12", "2.12.6", "2.13.0-M4"),
   version      := "0.1.0-SNAPSHOT",
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, n)) =>

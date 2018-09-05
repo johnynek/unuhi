@@ -1,17 +1,5 @@
 matrix:
   include:
-    - scala: 2.10.7
-      language: scala
-      jdk: oraclejdk8
-      env: PLATFORM="jvm"
-      script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coverage coreJVM/test lawsJVM/test fastparseJVM/test doc coverageReport && codecov
-
-    - scala: 2.10.7
-      language: scala
-      jdk: oraclejdk8
-      env: PLATFORM="js"
-      script: sbt "++ ${TRAVIS_SCALA_VERSION}!" coreJS/test lawsJS/test fastparseJS/test
-
     - scala: 2.11.12
       language: scala
       jdk: oraclejdk8
